@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>ASG0 Kevin Truong (ktruon13)</title>
+</head>
+
+<body onload="main()">
+  <canvas id="asg0" width="400" height="400">
+    Please use a browser that supports "canvas"
+  </canvas>
+  <!-- Load Libraries -->
+  <script src="lib/cuon-matrix-cse160.js"></script>
+  <!-- Load js files -->
+  <script src="asg0.js"></script>
+
+  <!-- Vector 1 -->
+  <br><br>
+  <label for="v1">v1: x</label>
+  <input type="text" id="v1x" name="v1x">
+  <label for="v1">y:</label>
+  <input type="text" id="v1y" name="v1y">
+  <!-- Vector 2 -->
+  <br><br>
+  <label for="v2">v2: x</label>
+  <input type="text" id="v2x" name="v2x">
+  <label for="v2">y:</label>
+  <input type="text" id="v2y" name="v2y">
+  <!-- DrawVectors -->
+  <br><br>
+  <input type="button" value="Draw" onclick="handleDrawEvent()"></input>
+
+  <!-- Operation Selection -->
+  <br><br>
+  <label for="Operation">Operation:</label>
+  <select name="Operation" id="option">
+    <option value="add">Add</option>
+    <option value="sub">Subtract</option>
+    <option value="div">Divide</option>
+    <option value="mul">Multiply</option>
+    <option value="ang">Angle Between</option>
+    <option value="are">Area</option>
+    <option value="mag">Magnitude</option>
+    <option value="nor">Normalize</option>
+  </select>
+  <label for="scalar">Scalar:</label>
+  <input type="text" id="scalar" name="scalar">
+
+  <!-- Draw2 -->
+  <br><br>
+  <input type="button" value="Draw" onclick="handleDrawOperationEvent()"></input>
+
+</body>
+
+</html>

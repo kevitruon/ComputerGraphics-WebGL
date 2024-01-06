@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>ASG1 Kevin Truong (ktruon13)</title>
+</head>
+
+<body onload="main()">
+  <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+  </canvas>
+
+  <br>
+  <button type="button" id = "clearButt">Clear</button>
+
+  <!-- Drawing Mode Selection -->
+  <br><br>
+  <label for="Shape">Drawing Mode:</label>
+  <br>
+  <button type="button" id = "squareButt">Squares</button>
+  <button type="button" id = "triangleButt">Triangles</button>
+  <button type="button" id = "circleButt">Circles</button>
+
+  <!-- Sliders -->
+  <br><br>
+  <label for="Stencil">Shape Color:</label>
+
+  <div>
+    Red <input type ="range" min = "0" max ="100" value = "100" class ="slider" id ="rSlide">
+    Green <input type ="range" min = "0" max ="100" value = "100" class ="slider" id ="gSlide">
+    Blue <input type ="range" min = "0" max ="100" value = "100" class ="slider" id ="bSlide">
+  </div>
+
+  <div>
+    Shape Size: <input type ="range" min = "5" max ="40" value = "5" class ="slider" id ="sizeSlide">
+    (Circles) Segment Count <input type ="range" min = "0" max ="100" value = "100" class ="slider" id ="segSlide">
+  </div>
+
+  <script src="lib/cuon-utils.js"></script>
+  <script src="lib/webgl-utils.js"></script>
+  <script src="lib/webgl-debug.js"></script>
+  <!-- Load js files -->
+  <script src="asg1.js"></script>
+  <script src="Point.js"></script>
+  <script src="Triangle.js"></script>
+  <script src="Circle.js"></script>
+  
+</body>
+</html>
