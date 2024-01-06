@@ -1,0 +1,315 @@
+<style>
+    html,
+    body {
+        margin: 0;
+        height: 100%;
+    }
+
+    #c {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+</style>
+</head>
+
+<body>
+    <canvas id="c"></canvas>
+</body>
+
+<script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js';
+    import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/OBJLoader.js';
+    import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/MTLLoader.js';
+
+
+    function main() {
+        const canvas = document.querySelector('#c');
+        const renderer = new THREE.WebGLRenderer({
+            canvas,
+            alpha: true,
+        });
+        renderer.outputEncoding = THREE.sRGBEncoding;
+
+        const fov = 90;
+        const aspect = 2;  // the canvas default
+        const near = 0.1;
+        const far = 100;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.set(0, 10, 30);
+
+        const controls = new OrbitControls(camera, canvas);
+        controls.target.set(0, 5, 0);
+        controls.update();
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('black');
+
+        {
+            const planeSize = 80;
+
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load('Resources/Images/water.jpg');
+            texture.encoding = THREE.sRGBEncoding;
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.magFilter = THREE.NearestFilter;
+            const repeats = planeSize / 2;
+            texture.repeat.set(repeats, repeats);
+
+            const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+            const planeMat = new THREE.MeshPhongMaterial({
+                map: texture,
+                side: THREE.DoubleSide,
+            });
+            const mesh = new THREE.Mesh(planeGeo, planeMat);
+            mesh.rotation.x = Math.PI * -.5;
+            scene.add(mesh);
+        }
+
+        // fog
+        {
+            const color = 0xA7A69D;
+            const near = 30;
+            const far = 70;
+            scene.fog = new THREE.Fog(color, near, far);
+        }
+
+        //ambient light
+        {
+            const color = 0xFFFFFF;
+            const intensity = 0.3;
+            const light = new THREE.DirectionalLight(color, intensity);
+            scene.add(light);
+        }
+
+        //hemisphere light
+        {
+            const skyColor = 0xFF00FF;
+            const groundColor = 0xB97AFF;
+            const intensity = 0.9;
+            const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+            scene.add(light);
+        }
+
+        // directional light
+        {
+            const color = 0xFFFFFF;
+            const intensity = 1;
+            const light = new THREE.DirectionalLight(color, intensity);
+            light.position.set(10, 10, 0);
+            light.target.position.set(-15, -10, -5);
+            scene.add(light);
+            scene.add(light.target);
+        }
+
+
+        function makeWaves(scale, x, z) {
+            const loadManager = new THREE.LoadingManager();
+            const loader = new THREE.TextureLoader(loadManager);
+
+            const materials = [
+                new THREE.MeshBasicMaterial({ map: loader.load('Resources/Images/waves.jpg') }),
+                new THREE.MeshBasicMaterial({ map: loader.load('Resources/Images/waves.jpg') }),
+                new THREE.MeshBasicMaterial({ map: loader.load('Resources/Images/waves2.jpg') }),
+                new THREE.MeshBasicMaterial({ map: loader.load('Resources/Images/waves2.jpg') }),
+                new THREE.MeshBasicMaterial({ map: loader.load('Resources/Images/waves.jpg') }),
+                new THREE.MeshBasicMaterial({ map: loader.load('Resources/Images/waves2.jpg') }),
+            ];
+            const geometry = new THREE.BoxGeometry(scale, scale, scale);
+
+            const wave = new THREE.Mesh(geometry, materials);
+            scene.add(wave);
+
+            wave.position.x = x;
+            wave.position.y = 0;
+            wave.position.z = z;
+
+            return wave;
+        }
+        const waves = [
+            makeWaves(3, 10, 20),
+            makeWaves(2, -20, 18),
+            makeWaves(1, -14, 32),
+            makeWaves(4, 32, 26),
+            makeWaves(2, -10, -16),
+            makeWaves(3, 10, -22),
+            makeWaves(2, -20, -19),
+            makeWaves(1, -14, 10),
+            makeWaves(4, 32, -10)
+        ];
+
+
+        function makeCube(scale, color, x, z) {
+            const material = new THREE.MeshPhongMaterial({ color });
+            const geometry = new THREE.BoxGeometry(scale, scale, scale);
+
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            cube.position.x = x;
+            cube.position.y = 10;
+            cube.position.z = z;
+
+            return cube;
+        }
+        const cubes = [
+            makeCube(1, 0x44ac31, 0, -10),
+            makeCube(1, 0x32abd28, 0, 10),
+            makeCube(1, 0x97a3bc, 10, 0),
+            makeCube(1, 0x861cca, -10, 0),
+        ];
+
+
+        const s_geometry = new THREE.SphereGeometry(0.5, 32, 16);
+
+        function makeSphere(color, x, y) {
+            const material = new THREE.MeshPhongMaterial({ color });
+
+            const sphere = new THREE.Mesh(s_geometry, material);
+            scene.add(sphere);
+
+            sphere.position.x = x;
+            sphere.position.y = y;
+            sphere.position.z = 0;
+
+            return sphere;
+        }
+
+        for (let x = -250; x < 250; x++) {
+            for (let z = -250; z < 250; z++) {
+                if ((x * x) + (z * z) == 250) {
+                    makeSphere(0xFFA500, x, z);
+                }
+            }
+        }
+
+
+        const cone_geometry = new THREE.ConeGeometry(32, 10, 32);
+        const material = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+        const cone = new THREE.Mesh(cone_geometry, material);
+        cone.position.x = -5;
+        scene.add(cone);
+        const cone2 = new THREE.Mesh(cone_geometry, material);
+        cone2.position.x = 5;
+        scene.add(cone2);
+
+        function makeTree(scale, x, y, z) {
+            const objLoader = new OBJLoader();
+            const mtlLoader = new MTLLoader();
+            mtlLoader.load('Resources/Objects/Palm tree/SunshinePalmTree.mtl', (mtl) => {
+                mtl.preload();
+                objLoader.setMaterials(mtl);
+                objLoader.load("Resources/Objects/Palm tree/SunshinePalmTree.obj", (root) => {
+                    root.position.x = x;
+                    root.position.y = y;
+                    root.position.z = z;
+                    root.scale.set(scale, scale, scale);
+                    scene.add(root);
+                });
+            });
+        }
+
+        const trees = [
+            makeTree(1, -5, 1, 10),
+            makeTree(.5, 10, -1, 10),
+            makeTree(0.7, -5, 1, -10),
+            makeTree(0.8, 10, 1, -10)
+        ];
+
+        function makeUmb(scale, x, y, z) {
+            const objLoader = new OBJLoader();
+            const mtlLoader = new MTLLoader();
+            mtlLoader.load('Resources/Objects/White Beach Umbrella/materials.mtl', (mtl) => {
+                mtl.preload();
+                objLoader.setMaterials(mtl);
+                objLoader.load("Resources/Objects/White Beach Umbrella/model.obj", (root) => {
+                    root.position.x = x;
+                    root.position.y = y;
+                    root.position.z = z;
+                    root.scale.set(scale, scale * 2, scale);
+                    scene.add(root);
+                });
+            });
+        }
+        makeUmb(10, 2, 3, 10);
+
+        function makeGirl(scale, x, y, z) {
+            const objLoader = new OBJLoader();
+            const mtlLoader = new MTLLoader();
+            
+            mtlLoader.load('Resources/Objects/Japanese Princess/materials.mtl', (mtl) => {
+                mtl.preload();
+                objLoader.setMaterials(mtl);
+                objLoader.load("Resources/Objects/Japanese Princess/model.obj", (root) => {
+                    root.position.x = x;
+                    root.position.y = y;
+                    root.position.z = z;
+                    root.scale.set(scale, scale, -scale);
+                    scene.add(root);
+                });
+            });
+        }
+
+        makeGirl(10, 0, 2, 10);
+
+        {
+            const loader = new THREE.CubeTextureLoader();
+            const texture = loader.load([
+                'Resources/Images/clouds1/clouds1_east.bmp',
+                'Resources/Images/clouds1/clouds1_west.bmp',
+                'Resources/Images/clouds1/clouds1_up.bmp',
+                'Resources/Images/clouds1/clouds1_down.bmp',
+                'Resources/Images/clouds1/clouds1_north.bmp',
+                'Resources/Images/clouds1/clouds1_south.bmp',
+            ]);
+            scene.background = texture;
+        }
+
+        function resizeRendererToDisplaySize(renderer) {
+            const canvas = renderer.domElement;
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            const needResize = canvas.width !== width || canvas.height !== height;
+            if (needResize) {
+                renderer.setSize(width, height, false);
+            }
+            return needResize;
+        }
+
+        function render(time) {
+            time *= 0.001;
+
+            if (resizeRendererToDisplaySize(renderer)) {
+                const canvas = renderer.domElement;
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+            }
+
+            cubes.forEach((cube, ndx) => {
+                const speed = 1 + ndx * .1;
+                const rot = time * speed;
+                cube.rotation.x = rot;
+                cube.rotation.y = rot;
+            });
+
+            waves.forEach((wave, ndx) => {
+                const speed = 1 + ndx * .5;
+                const rot = time * speed;
+                wave.rotation.x = rot;
+                wave.rotation.y = rot;
+            });
+
+            renderer.render(scene, camera);
+
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+    }
+
+    main();
+</script>
+
+</html>
